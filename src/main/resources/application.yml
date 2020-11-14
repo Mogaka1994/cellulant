@@ -1,0 +1,13 @@
+spring:
+    datasource:
+        password: cellulant
+        url: jdbc:mysql://localhost:3306/cellulant?useSSL=false
+        username: cellulant
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+swagger:
+    enable: true
