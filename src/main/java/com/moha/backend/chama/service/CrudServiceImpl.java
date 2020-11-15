@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /***
- * 
+ *
  * @author moha
  */
 @Service
@@ -34,7 +34,7 @@ public class CrudServiceImpl implements CrudService {
     protected void init() {
         LOG.info("Initializing crud service...");
         sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
-        
+
         LOG.info("Crud service initialized. Sessionfactory properties {}", entityManagerFactory.getProperties());
     }
 
@@ -313,7 +313,7 @@ public class CrudServiceImpl implements CrudService {
             }
         }
     }
-    
+
     @Override
     public SessionFactory getSessionFactory() {
         return sessionFactory;

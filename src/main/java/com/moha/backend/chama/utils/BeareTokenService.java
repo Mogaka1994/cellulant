@@ -1,25 +1,21 @@
 package com.moha.backend.chama.utils;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import javax.annotation.PostConstruct;
 import org.json.JSONObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.LinkedHashSet;
+import java.util.Set;
 /**
  *
  * @author Moha
@@ -34,7 +30,7 @@ public class BeareTokenService {
 
     @Autowired
     Environment env;
-    
+
     @PostConstruct
     public void init() {
         try {

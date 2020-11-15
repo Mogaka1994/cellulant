@@ -9,10 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 public interface CustomerService {
 
-    public String changeCustomerPin(String msisdn, String pin, String newpin);
+    String changeCustomerPin(String msisdn, String pin, String newpin);
 
-
-    public String AuthenticateCustomer(String msisdn, String pin);
+    String AuthenticateCustomer(String msisdn, String pin);
     
-    public String processSavingsDeposit(String msisdn, String amount, String ref) throws NonRollbackException; 
+    String processSavingsDeposit(String msisdn, String amount, String ref) throws NonRollbackException;
 }

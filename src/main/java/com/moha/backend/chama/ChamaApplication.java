@@ -29,11 +29,11 @@ public class ChamaApplication {
 
     @Bean
     public Docket api() {
-        boolean swaggerswitch = environment.getRequiredProperty("swagger.enable") != null
-                && environment.getRequiredProperty("swagger.enable").equals("true") ? true : false;
+        environment.getRequiredProperty("swagger.enable");
+        boolean swaggerswitch = environment.getRequiredProperty("swagger.enable").equals("true");
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.team189.backend.chama.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.moha.backend.chama.controller"))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo())
@@ -43,7 +43,7 @@ public class ChamaApplication {
    
 
     private ApiInfo apiInfo() {
-        ApiInfo apiInfo = new ApiInfo(
+        return new ApiInfo(
                 "Backend",
                 "Microservice",
                 "v1.0.0",
@@ -51,7 +51,6 @@ public class ChamaApplication {
                 "polycarpmogaka16@gmail.com",
                 "License of API",
                 "#");
-        return apiInfo;
     }
 
         
