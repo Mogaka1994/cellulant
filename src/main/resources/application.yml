@@ -11,3 +11,5 @@ spring:
                 dialect: org.hibernate.dialect.MySQL5InnoDBDialect
 swagger:
     enable: true
+server:
+    port: 8091
