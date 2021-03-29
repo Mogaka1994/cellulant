@@ -52,7 +52,4 @@ public class ChamaApplication {
                 "License of API",
                 "#");
     }
-
-        
-
 }

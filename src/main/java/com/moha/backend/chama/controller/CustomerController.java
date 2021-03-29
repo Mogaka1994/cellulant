@@ -16,10 +16,19 @@ import com.moha.backend.chama.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,6 +52,8 @@ public class CustomerController {
     CustomerService service;
     @Autowired
     CustomerRepository cust;
+    @Autowired
+    Environment environment;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     Map<String, Object> responseMap = new HashMap<>();
     String payload = "{\n" +
@@ -61,6 +72,7 @@ public class CustomerController {
     public ResponseEntity<String> createCustomer(@RequestBody CustomerPayload payload) {
         try {
             LOG.info("MOGAKA");
+            LOG.info("Request Data customer nam {},ID {},LOCATION {}",payload.getFirstname()+"-"+payload.getSurname(),payload.getIdno(),payload.getLocation());
             Customers customers = new Customers();
             Integer pin = ThreadLocalRandom.current().nextInt(1001, 9999);
             customers.setFirstname(payload.getFirstname());
@@ -75,9 +87,15 @@ public class CustomerController {
             customers.setMarital_status(payload.getMaritalStatus());
             customers.setMsisdn(payload.getMsisdn());
             customers.setChama_id(payload.getChama_id());
-            crudService.save(customers);
-            responseMap.put("responseCode","00");
-            responseMap.put("responseMessage","Successfully registered,your pin is "+String.valueOf(pin));
+            if(service.checkRegistrationstatus(payload.getMsisdn())){
+                responseMap.put("responseCode","01");
+                responseMap.put("responseMessage","You are already registered");
+            }else {
+                crudService.save(customers);
+                sendSms(payload.getMsisdn(),"Thank you for choosing as your finance partner,your secret pin is "+pin);
+                responseMap.put("responseCode", "00");
+                responseMap.put("responseMessage", "Successfully registered,your pin is " + pin);
+            }
             return new ResponseEntity<>(new ObjectMapper().writeValueAsString(responseMap), HttpStatus.OK);
         } catch (JsonProcessingException | ParseException e) {
             responseMap.put("responseCode", "01");
@@ -154,7 +172,7 @@ public class CustomerController {
     @PostMapping(value="/savings")
     public ResponseEntity<String>SaveMoney(@RequestBody SaveModel payload) throws NonRollbackException, JsonProcessingException{
         try {
-            String customers = service.processSavingsDeposit(payload.getAmount(),payload.getMsisdn(),payload.getReference());
+            service.processSavingsDeposit(payload.getMsisdn(),payload.getAmount(),payload.getReference());
             responseMap.put("responseCode", "00");
             responseMap.put("responseMessage","Request Received for Processing" );
             return new ResponseEntity<>(new ObjectMapper().writeValueAsString(responseMap), HttpStatus.OK);
@@ -164,6 +182,34 @@ public class CustomerController {
             return new ResponseEntity<>(new ObjectMapper().writeValueAsString(responseMap), HttpStatus.OK);
         }
 
+    }
+    public void sendSms(String msisdn, String message) {
+        try {
+            processSms(environment.getRequiredProperty("sms.url") + msisdn + "&msg=", message);
+        } catch (Exception e) {
+        }
+    }
+    private String processSms(String endPointURL, String message) throws MalformedURLException, IOException {
+        LOG.info("Sms url {} Message {} ",endPointURL,message);
+        URL url = new URL(endPointURL + URLEncoder.encode(message, StandardCharsets.UTF_8.toString()));
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+        StringBuffer response = null;
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            String inputLine;
+            response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+        }
+        return response.toString();
     }
 }
 

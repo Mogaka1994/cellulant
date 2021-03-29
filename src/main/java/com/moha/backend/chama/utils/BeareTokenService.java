@@ -54,8 +54,7 @@ public class BeareTokenService {
     @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 30)
     public void autoSetOauthBearerCode() {
         try {
-            String accessToken = generateAccessToken();
-            token = accessToken;
+             token = generateAccessToken();
             LOG.info("Refreshed token={}", token);
         } catch (Exception e) {
             LOG.error("Error fetching token ={}", e);
@@ -67,18 +66,17 @@ public class BeareTokenService {
         String accessToken = "";
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String authUrl = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
-            String customerKey = "DnllNPz5hK2aEXCKiHgTVi5X5xSGw7z0";
-            String customerSecret = "v90MM7AEYbDbPgSU";
+            String authUrl = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+            String customerKey = "mAbzG8t0PQXnyBmZNsCqPyUovnTC9W1c";
+            String customerSecret = "GO1HVqoeA3FAOGrH";
 
             String encryptByte = customerKey + ":" + customerSecret;
-            // encode with padding
             String encoded = Base64.getEncoder().encodeToString(encryptByte.getBytes());
             String authorizationString = "Basic " + encoded;
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("Authorization", authorizationString);
             headers.add("Access-Control-Allow-Origin", "*");
 

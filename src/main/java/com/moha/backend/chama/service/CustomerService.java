@@ -14,4 +14,6 @@ public interface CustomerService {
     String AuthenticateCustomer(String msisdn, String pin);
     
     String processSavingsDeposit(String msisdn, String amount, String ref) throws NonRollbackException;
+    
+    public boolean checkRegistrationstatus(String msisdn);
 }

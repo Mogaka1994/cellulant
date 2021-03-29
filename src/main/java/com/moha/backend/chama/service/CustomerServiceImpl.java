@@ -33,10 +33,10 @@ public class CustomerServiceImpl implements CustomerService {
     Environment env;
     private final Logger LOG = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    public static final String  stk_push_shortcode = "763786";
-    public static final String  passkey = "9de221408c9ca4fe203a6bf30b1dc4ec5a0e98eb9965f576e7f6e759e3d17ff8";
-    public static final String stk_end_point ="https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
-    public static final String callbackurl = "https://197.232.25.76/frameworkCallbacks/callFrameworkVisionFundStkPush.php";
+    public static final String  stk_push_shortcode = "174379";
+    public static final String  passkey = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+    public static final String stk_end_point ="https://sandbox.192.168.100.76safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+    public static final String callbackurl = "http:///callback_url.php";
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServiceImpl.class.getSimpleName());
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMddHHmmss");
     @Override
@@ -81,7 +81,7 @@ public class CustomerServiceImpl implements CustomerService {
                     + "      \"BusinessShortCode\": \"" + stk_push_shortcode + "\",\n"
                     + "      \"Password\": \"" + getRequestPassword(stk_push_shortcode,passkey, _timestamp) + "\",\n"
                     + "      \"Timestamp\": \"" + _timestamp + "\",\n"
-                    + "      \"TransactionType\": \"CustomerSavings\",\n"
+                    + "      \"TransactionType\": \"CustomerPayBillOnline\",\n"
                     + "      \"Amount\": \"" + amount + "\",\n"
                     + "      \"PartyA\": \"" + msisdn + "\",\n"
                     + "      \"PartyB\": \"" + stk_push_shortcode + "\",\n"
@@ -118,7 +118,23 @@ public class CustomerServiceImpl implements CustomerService {
         }
         return null;
     }
-    private String postPayload(String endPointURL, String requestBody, String authKey) throws MalformedURLException, IOException {
+
+    @Override
+    public boolean checkRegistrationstatus(String msisdn) {
+        String q = "Select firstname from customers where msisdn='"+msisdn+"'";
+        List<Object> response = crudeService.fetchWithNativeQuery(q, Collections.EMPTY_MAP, 0, 1);
+        try {
+            if (String.valueOf(response.get(0)) != null || !String.valueOf(response.get(0)).equals("")) {
+                return true;
+            }
+        }catch (Exception e){
+            return false;
+        }
+        return false;
+    }
+
+    private String postPayload(String endPointURL, String requestBody, String authKey) throws IOException {
+        LOGGER.info("Endpoint {} Request Body {} Auth Key {} ",endPointURL,requestBody,authKey);
         URL url = new URL(endPointURL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
@@ -129,14 +145,14 @@ public class CustomerServiceImpl implements CustomerService {
         connection.setRequestProperty("Authorization",
                 authKey);
         connection.setRequestProperty("Content-Length", ""
-                + Integer.toString(requestBody.getBytes().length));
+                + requestBody.getBytes().length);
         connection.setRequestProperty("Content-Language", "en-US");
         connection.setUseCaches(false);
         connection.setDoInput(true);
         connection.setDoOutput(true);
 
         try (DataOutputStream wr = new DataOutputStream(
-                connection.getOutputStream());) {
+                connection.getOutputStream())) {
             wr.writeBytes(requestBody);
             wr.flush();
         }
